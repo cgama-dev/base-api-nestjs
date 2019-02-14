@@ -1,5 +1,6 @@
 import 'automapper-ts/dist/automapper';
 import { Types } from 'mongoose';
+import { InstanceType, ModelType, Typegoose } from 'typegoose';
 
 export abstract class BaseService<T extends Typegoose> {
     protected _model: ModelType<T>;
@@ -10,7 +11,7 @@ export abstract class BaseService<T extends Typegoose> {
     }
 
     private get viewModelName(): string {
-        return `${this._model.modelName}`;
+        return `${this._model.modelName}Vm`;
     }
 
     async map<K>(
@@ -20,7 +21,6 @@ export abstract class BaseService<T extends Typegoose> {
     ): Promise<K> {
         return this._mapper.map(sourceKey, destinationKey, object);
     }
-
 
     async findAll(filter = {}): Promise<InstanceType<T>[]> {
         return this._model.find(filter).exec();
@@ -46,12 +46,11 @@ export abstract class BaseService<T extends Typegoose> {
         return this._model.findByIdAndUpdate(this.toObjectId(id), item, { new: true }).exec();
     }
 
-    async clearCollection(filter = {}): Promise<void> {
-        return this._model.deleteMany(filter).exec();
-    }
+    // async clearCollection(filter = {}): Promise<T> {
+    //     // return this._model.deleteMany(filter).exec();
+    // }
 
     private toObjectId(id: string): Types.ObjectId {
         return Types.ObjectId(id);
     }
-
 }

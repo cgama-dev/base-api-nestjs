@@ -1,26 +1,38 @@
-import { Document, SchemaOptions } from 'mongoose'
 import { ApiModelPropertyOptional } from '@nestjs/swagger';
+import { SchemaOptions } from 'mongoose';
+import { Typegoose, prop, pre, ModelType } from 'typegoose';
 
+export class BaseModelVm {
+    @ApiModelPropertyOptional({ type: String, format: 'date-time' })
+    createdAt?: Date;
 
-export interface IBaseModel extends Document {
-    createdAt?: Date
-    updateAt?: Date
+    @ApiModelPropertyOptional({ type: String, format: 'date-time' })
+    updatedAt?: Date;
+
+    @ApiModelPropertyOptional() id?: string;
 }
 
-export class BaseModel {
-    @ApiModelPropertyOptional({ type: String, format: 'date-time' })
-    createdAt?: Date
+@pre<T>('findOneAndUpdate', function () {
+    this._update.updatedAt = new Date(Date.now());
+})
 
+export abstract class BaseModel<T> extends Typegoose {
+    @prop()
     @ApiModelPropertyOptional({ type: String, format: 'date-time' })
-    updateAt?: Date
+    createdAt: Date;
+
+    @prop()
+    @ApiModelPropertyOptional({ type: String, format: 'date-time' })
+    updatedAt: Date;
 
     @ApiModelPropertyOptional()
-    id?: string
+    id: string;
 }
 
 export const schemaOptions: SchemaOptions = {
+    timestamps: true,
     toJSON: {
         virtuals: true,
-        getters: true
-    }
-}
+        getters: true,
+    },
+};
